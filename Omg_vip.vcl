@@ -121,7 +121,7 @@ openBtn.MouseButton1Click:Connect(function() mf.Visible = not mf.Visible end)
 
 local function getCombatTarget()
 	local bestTarget = nil
-	local shortestDist = 60 -- Đã tăng phạm vi tìm kiếm mục tiêu lên 60
+	local shortestDist = 60 -- Phạm vi tìm kiếm mục tiêu được đặt cố định ở 60 stud
 	pcall(function()
 		local c = pl.Character 
 		if not c or not c:FindFirstChild("HumanoidRootPart") then return end 
