@@ -380,7 +380,7 @@ RS.Heartbeat:Connect(function()
 					if tick() - lat >= 0.15 then 
 						local tl = cc:FindFirstChildOfClass("Tool") 
 						if tl then tl:Activate() end 
-						th:TakeDamage(50) 
+						th:TakeDamage(60) 
 						lat = tick() 
 					end 
 				end 
