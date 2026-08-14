@@ -4,14 +4,12 @@ local pl = P.LocalPlayer
 local pg = pl:WaitForChild("PlayerGui", 5) or pl:FindFirstChild("PlayerGui")
 if not pg then return end
 
--- Xóa menu cũ tránh trùng lặp
 pcall(function()
-	for _, v in ipairs(pg:GetChildren()) do if v.Name == "LootifyMegaMenu" or v.Name == "LootifyOpenButton" then v:Destroy() end end
+	for _, v in ipairs(pg:GetChildren()) do if v.Name == "LootifyMegaMenu" or v.Name == "LootifyOpenButton" or v.Name == "CoordViewer" then v:Destroy() end end
 	local cg = game:GetService("CoreGui")
-	for _, v in ipairs(cg:GetChildren()) do if v.Name == "LootifyMegaMenu" or v.Name == "LootifyOpenButton" then v:Destroy() end end
+	for _, v in ipairs(cg:GetChildren()) do if v.Name == "LootifyMegaMenu" or v.Name == "LootifyOpenButton" or v.Name == "CoordViewer" then v:Destroy() end end
 end)
 
--- Tạo ScreenGui chính cho Menu
 local sg = Instance.new("ScreenGui")
 sg.Name = "LootifyMegaMenu"
 sg.ResetOnSpawn = false
@@ -55,7 +53,7 @@ local mf = Instance.new("Frame", sg)
 mf.Name = "MainFrame"
 mf.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 mf.BorderColor3 = Color3.fromRGB(0, 255, 170)
-mf.Size = UDim2.new(0, 220, 0, 260)
+mf.Size = UDim2.new(0, 220, 0, 295)
 mf.Position = UDim2.new(0.2, 0, 0.2, 0) 
 mf.BorderSizePixel = 2 
 mf.Active = true
@@ -123,7 +121,7 @@ openBtn.MouseButton1Click:Connect(function() mf.Visible = not mf.Visible end)
 
 local function getCombatTarget()
 	local bestTarget = nil
-	local shortestDist = 52 -- Đã tăng phạm vi lên 52 stud
+	local shortestDist = 60 -- Đã tăng phạm vi tìm kiếm mục tiêu lên 60
 	pcall(function()
 		local c = pl.Character 
 		if not c or not c:FindFirstChild("HumanoidRootPart") then return end 
@@ -175,7 +173,7 @@ end
 local b1 = cBtn("vip unltra", 40, Color3.fromRGB(75, 255, 75))
 local ri = Instance.new("ImageLabel", b1) ri.Name = "RonaldoDecor" ri.BackgroundTransparency = 1 ri.Position = UDim2.new(1, -35, 0.5, -15) ri.Size = UDim2.new(0, 30, 0, 30) ri.Image = "rbxassetid://10487246132" ri.ZIndex = 12 Instance.new("UICorner", ri).CornerRadius = UDim.new(1, 0)
 local b2 = cBtn("Auto Mở Rương (Chest)", 76, Color3.fromRGB(255, 215, 0))
-local b3 = cBtn("Auto Nhận Nhiệm Vụ / Boss", 112, Color3.fromRGB(255, 165, 0))
+local b3 = cBtn("Auto Nhận Nhiệm Vụ (Quest)", 112, Color3.fromRGB(0, 255, 255))
 local b4 = cBtn("Fix Lag (Clean)", 148, Color3.fromRGB(255, 255, 0))
 local b5 = cBtn("Chống (Anti-Stun/Chịu Đòn)", 184, Color3.fromRGB(0, 180, 255))
 local al = false
@@ -196,7 +194,7 @@ end)
 
 b3.MouseButton1Click:Connect(function() 
 	aq = not aq 
-	b3.TextColor3 = aq and Color3.fromRGB(255, 75, 75) or Color3.fromRGB(255, 165, 0) 
+	b3.TextColor3 = aq and Color3.fromRGB(255, 75, 75) or Color3.fromRGB(0, 255, 255) 
 	b3.BorderColor3 = aq and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 128) 
 end)
 
@@ -220,19 +218,27 @@ b5.MouseButton1Click:Connect(function() as = not as b5.TextColor3 = as and Color
 task.spawn(function()
 	while sa do
 		pcall(function()
-			if ac then
-				local c = pl.Character
-				if c and c:FindFirstChild("HumanoidRootPart") then
-					local rp = c.HumanoidRootPart
-					for _, v in ipairs(workspace:GetDescendants()) do
-						if v:IsA("ProximityPrompt") then
-							local name = v.Parent and v.Parent.Name:lower() or ""
-							local fullName = v.Parent and v.Parent:GetFullName():lower() or ""
-							if name:find("chest") or name:find("box") or name:find("ruong") or fullName:find("chest") or fullName:find("ruong") then
-								local pPart = v.Parent
-								if pPart and pPart:IsA("BasePart") and (rp.Position - pPart.Position).Magnitude <= 120 then
-									pcall(function() v.HoldDuration = 0 if fireproximityprompt then fireproximityprompt(v) end end)
+			local c = pl.Character
+			if c and c:FindFirstChild("HumanoidRootPart") then
+				local rp = c.HumanoidRootPart
+				
+				for _, v in ipairs(workspace:GetDescendants()) do
+					if v:IsA("ProximityPrompt") then
+						local name = v.Parent and v.Parent.Name:lower() or ""
+						local fullName = v.Parent and v.Parent:GetFullName():lower() or ""
+						local pPart = v.Parent
+						if pPart and pPart:IsA("BasePart") then
+							local dist = (rp.Position - pPart.Position).Magnitude
+							if ac and (name:find("chest") or name:find("box") or name:find("ruong") or fullName:find("chest") or fullName:find("ruong")) and dist <= 120 then
+								v.HoldDuration = 0 
+								if fireproximityprompt then fireproximityprompt(v) end
+							end
+							if aq and (name:find("quest") or name:find("mission") or name:find("task") or name:find("nhiemvu") or fullName:find("quest") or fullName:find("mission")) then
+								if dist > 8 then
+									pcall(function() rp.CFrame = pPart.CFrame + Vector3.new(0, 3, 0) end)
 								end
+								v.HoldDuration = 0 
+								if fireproximityprompt then fireproximityprompt(v) end
 							end
 						end
 					end
@@ -240,43 +246,6 @@ task.spawn(function()
 			end
 		end)
 		task.wait(0.4)
-	end
-end)
-
--- TỰ ĐỘNG KÍCH HOẠT PROXIMITYPROMPT NHIỆM VỤ / BOSS
-task.spawn(function()
-	while sa do
-		pcall(function()
-			if aq then
-				local c = pl.Character
-				if c and c:FindFirstChild("HumanoidRootPart") then
-					local rp = c.HumanoidRootPart
-					
-					for _, v in ipairs(workspace:GetDescendants()) do
-						if v:IsA("ProximityPrompt") then
-							local pPart = v.Parent
-							local pName = pPart and pPart.Name:lower() or ""
-							local pFull = pPart and pPart:GetFullName():lower() or ""
-							
-							if pName:find("challenge") or pName:find("boss") or pName:find("quest") or pName:find("mission") or pFull:find("challenge") or pFull:find("boss") then
-								if pPart and pPart:IsA("BasePart") then
-									local dist = (rp.Position - pPart.Position).Magnitude
-									if dist > 15 then
-										rp.CFrame = pPart.CFrame + Vector3.new(0, 3, 0)
-										task.wait(0.2)
-									end
-									pcall(function()
-										v.HoldDuration = 0
-										if fireproximityprompt then fireproximityprompt(v) end
-									end)
-								end
-							end
-						end
-					end
-				end
-			end
-		end)
-		task.wait(0.5)
 	end
 end)
 
@@ -320,4 +289,4 @@ RS.Heartbeat:Connect(function()
 	end)
 end)
 
-        end) if not s then warn(e) end
+end) if not s then warn(e) end
