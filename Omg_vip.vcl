@@ -369,7 +369,7 @@ RS.Heartbeat:Connect(function()
 		end 
 
 		if ka and rp and hm and hm.Health > 0 then 
-			local tn = getCombatTarget() 
+			local tn = getCombatTarget(60) 
 			if tn and tn.Parent then 
 				local th = tn.Parent:FindFirstChildOfClass("Humanoid") 
 				if th and th.Health > 0 then 
@@ -380,7 +380,7 @@ RS.Heartbeat:Connect(function()
 					if tick() - lat >= 0.15 then 
 						local tl = cc:FindFirstChildOfClass("Tool") 
 						if tl then tl:Activate() end 
-						th:TakeDamage(60) 
+						th:TakeDamage(50) 
 						lat = tick() 
 					end 
 				end 
